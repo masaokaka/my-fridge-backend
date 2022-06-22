@@ -4,8 +4,6 @@ services:
     build: ./infra/php
     volumes:
       - ./src:/src
-
-  # 追記
   myfridge-web:
     image: nginx:1.20-alpine
     ports:
@@ -14,3 +12,11 @@ services:
       - ./src:/src
       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
     working_dir: /src
+
+  myfridge-db:
+    build: ./infra/db
+    volumes:
+      - db-store:/var/lib/mysql
+
+volumes:
+  db-store:
