@@ -1,20 +1,18 @@
 FROM golang:1.20.4-alpine3.18
+RUN apk update &&  apk add git
 
 WORKDIR /app
 
-# Goモジュールの依存関係のセキュリティチェックとバージョン管理のファイル
 COPY /app/go.mod ./
+
 COPY /app/go.sum ./
 
-RUN go get github.com/labstack/echo/v4
-RUN go get github.com/labstack/echo/v4/middleware
-
-RUN go mod download
+RUN go install github.com/cosmtrek/air@latest
 
 COPY /app/*.go ./
 
-RUN go build -o /build
+RUN go mod download
 
-EXPOSE 5000
+EXPOSE 5050
 
-CMD ["/build"]
+CMD ["air", "-c", ".air.toml"]

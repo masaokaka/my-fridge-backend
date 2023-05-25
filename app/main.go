@@ -12,7 +12,7 @@ var e = createMux()
 func main() {
 	e.GET("/", articleIndex)
 
-	e.Logger.Fatal(e.Start(":5000"))
+	e.Logger.Fatal(e.Start(":5050"))
 }
 
 func createMux() *echo.Echo {
@@ -26,5 +26,5 @@ func createMux() *echo.Echo {
 }
 
 func articleIndex(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
+	return c.String(http.StatusOK, "Hello")
 }

@@ -35,6 +35,6 @@ services:
     volumes:
       - ./app:/app # ローカルのsrc配下をコンテナ内から読み書き
     ports:
-      - 5000:5000
+      - 5050:5050
     stdin_open: true
     tty: true #コンテナが正常終了してもコンテナを継続させる
