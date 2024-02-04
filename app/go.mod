@@ -1,4 +1,4 @@
-module my-fridge-backend
+module myfridge-backend
 
 go 1.20
 
