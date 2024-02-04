@@ -1,5 +1,7 @@
   {
     "recommendations": [
-    "golang.Go"
+    "golang.Go",
+    "premparihar.gotestexplorer",
+    "aaron-bond.better-comments"
   ]
 }
