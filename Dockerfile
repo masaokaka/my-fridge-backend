@@ -1,17 +1,16 @@
-FROM golang:1.20.4-alpine3.18
-RUN apk update &&  apk add git
+FROM golang:1.21.5-alpine3.18
+
+RUN apk update && apk add git
+
+ENV TZ /usr/share/zoneinfo/Asia/Tokyo
 
 WORKDIR /app
 
-COPY /app/go.mod ./
-
-COPY /app/go.sum ./
-
-RUN go install github.com/cosmtrek/air@latest
-
-COPY /app/*.go ./
+COPY /app/* ./
 
 RUN go mod download
+
+RUN go install github.com/cosmtrek/air@latest
 
 EXPOSE 5050
 

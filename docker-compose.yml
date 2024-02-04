@@ -1,40 +1,32 @@
-# version: "3.8"
-# services:
-#   myfridge-app:
-#     build: ./infra/php
-#     volumes:
-#       - ./src:/src
-#   myfridge-web:
-#     image: nginx:1.20-alpine
-#     ports:
-#       - 8080:80
-#     volumes:
-#       - ./src:/src
-#       - ./infra/nginx/default.conf:/etc/nginx/conf.d/default.conf
-#     working_dir: /src
-
-#   myfridge-db:
-#     build: ./infra/db
-#     volumes:
-#       - db-store:/var/lib/mysql
-
-# volumes:
-#   db-store:
-  
-# service:
-#   app:
-#     container_name: app
-#   db:
-
-version: '3.8'
+version: '3.9'
 services:
-  myfridge-backend:
-    build:
-      context: . #Dockerfileの場所
-      dockerfile: Dockerfile #Dockerfileの名前
+  db:
+    container_name: db
+    image: 'mysql:8.2.0'
     volumes:
-      - ./app:/app # ローカルのsrc配下をコンテナ内から読み書き
+      - myfridge_db_data:/var/lib/mysql
+      - type: bind
+        source: ./db/initdb.d
+        target: /docker-entrypoint-initdb.d
+      - type: bind
+        source: ./db/conf.d
+        target: /etc/mysql/conf.d
+    env_file:
+      - ./env/db.env
+    ports:
+      - 3306:3306
+  api:
+    container_name: api
+    build: .
+    volumes:
+      - type: bind 
+        source: ./app
+        target: /app
     ports:
       - 5050:5050
-    stdin_open: true
-    tty: true #コンテナが正常終了してもコンテナを継続させる
+    env_file:
+      - ./env/api.env
+    depends_on:
+      - db
+volumes:
+  myfridge_db_data:
