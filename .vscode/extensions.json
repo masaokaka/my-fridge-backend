@@ -2,6 +2,7 @@
     "recommendations": [
     "golang.Go",
     "premparihar.gotestexplorer",
-    "aaron-bond.better-comments"
+    "aaron-bond.better-comments",
+    "Arjun.swagger-viewer",
   ]
 }
