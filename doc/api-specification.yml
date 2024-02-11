@@ -1,0 +1,1816 @@
+---
+basePath: /
+info:
+  description: 冷蔵庫アプリのAPIについて記載したドキュメントです。
+  title: 冷蔵庫アプリ用 API
+  version: 2.0.0
+swagger: '2.0'
+tags:
+  - name: 汎用
+  - name: レシピ関連
+  - name: カテゴリ関連
+  - name: ユーザー認証関連
+  - name: アカウント関連
+  - name: 食材セット関連
+  - name: マイレシピ関連
+  - name: お知らせ関連
+  - name: 冷蔵庫関連
+  - name: 献立表関連
+paths:
+  /account:
+    get:
+      consumes:
+        - application/json
+      description: IDを指定してユーザーを取得する。
+      parameters:
+        - description: ユーザーID
+          in: body
+          name: userId
+          required: true
+          schema:
+            properties:
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            properties:
+              email:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+              username:
+                example: string
+                type: string
+            type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: ユーザー情報取得
+      tags:
+        - アカウント関連
+    post:
+      consumes:
+        - application/json
+      description: 新規ユーザーの登録を行います。
+      parameters:
+        - description: 新たに登録したいユーザー名
+          in: body
+          name: username
+          required: true
+          schema:
+            properties:
+              email:
+                example: string
+                type: string
+              password:
+                example: string
+                type: string
+              username:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            properties:
+              fridgeExists:
+                example: false
+                type: boolean
+              sessionId:
+                example: string
+                type: string
+              userId:
+                example: Vd895kjvcr
+                type: string
+              username:
+                example: string
+                type: string
+            type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: 新規ユーザー登録
+      tags:
+        - アカウント関連
+  /account/{userId}:
+    delete:
+      consumes:
+        - application/json
+      description: ログイン中ユーザーのアカウントを削除する。ただし削除できるのは自分のみ。
+      parameters:
+        - in: path
+          description: ユーザーID
+          name: userId
+          required: true
+          type: integer
+          format: int64
+        - description: 削除したいユーザーのID
+          in: body
+          name: user_info
+          required: true
+          schema:
+            properties:
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: アカウント削除
+      tags:
+        - アカウント関連
+    put:
+      consumes:
+        - application/json
+      description: ログイン中のユーザーのみ実行可能。
+      parameters:
+        - in: path
+          description: ユーザーID
+          name: userId
+          required: true
+          type: integer
+          format: int64
+        - description: ユーザー名のデータ/emailのデータ
+          in: body
+          name: user_info
+          required: true
+          schema:
+            properties:
+              email:
+                example: string
+                type: string
+              username:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            properties:
+              email:
+                example: string
+                type: string
+              username:
+                example: string
+                type: string
+            type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: ユーザー情報更新
+      tags:
+        - アカウント関連
+  /account/password/change:
+    post:
+      consumes:
+        - application/json
+      description: ログイン中のユーザーのパスワードを変更
+      parameters:
+        - description: ユーザーIDと現在のパスワードと新しいパスワード
+          in: body
+          name: password_info
+          required: true
+          schema:
+            properties:
+              currentPassword:
+                example: string
+                type: string
+              newPassword:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+            type: object
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: パスワード変更
+      tags:
+        - アカウント関連
+  /account/password/reset:
+    post:
+      consumes:
+        - application/json
+      description: パスワードを忘れた場合にパスワードを再発行してメールアドレス宛に送信
+      parameters:
+        - description: ユーザー名とメールアドレス
+          in: body
+          name: user_info
+          required: true
+          schema:
+            properties:
+              email:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+              userName:
+                example: string
+                type: string
+            type: object
+      responses:
+        '200':
+          description: 成功時に新しく発行したパスワードをユーザーのメールアドレスに送信する。
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: パスワード再発行
+      tags:
+        - アカウント関連
+  /category/food:
+    get:
+      consumes:
+        - application/json
+      description: 検索などに使用する食材のカテゴリを取得する。
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                foodCategoryId:
+                  example: string
+                  type: string
+                foodCategoryName:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材のカテゴリを取得
+      tags:
+        - カテゴリ関連
+  /category/recipe:
+    get:
+      consumes:
+        - application/json
+      description: 検索などに使用する料理のカテゴリを取得する。
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                recipeCategoryId:
+                  example: string
+                  type: string
+                recipeCategoryName:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 料理のカテゴリを取得
+      tags:
+        - カテゴリ関連
+  /food:
+    get:
+      consumes:
+        - application/json
+      description: 食材登録時などに候補として表示するための食材情報を取得。(全ての食材)
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                categoryId:
+                  example: string
+                  type: string
+                foodId:
+                  example: string
+                  type: string
+                foodName:
+                  example: string
+                  type: string
+                unit:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材情報を取得
+      tags:
+        - 汎用
+  /recipe:
+    get:
+      consumes:
+        - application/json
+      description: 一般レシピを条件に合わせて取得する。（楽天レシピ）
+      parameters:
+        - description: ユーザーID,検索対象,フリーワード,レシピカテゴリ,調理時間
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              userId:
+                example: string
+                type: string
+              object:
+                example: string
+                type: string
+              text:
+                example: string
+                type: string
+              recipeCategory:
+                example: string
+                type: string
+              cookingTime:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                recipeId:
+                  example: string
+                  type: string
+                recipeName:
+                  example: string
+                  type: string
+                cookingTime:
+                  example: string
+                  type: string
+                recipeCategory:
+                  example: string
+                  type: string
+                favorite:
+                  example: 0
+                  type: number
+                ingredients:
+                  items:
+                    properties:
+                      foodId:
+                        example: string
+                        type: string
+                      name:
+                        example: string
+                        type: string
+                      amount: 
+                        example: string
+                        type: string
+                      unit: 
+                        example: string
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 一般レシピ情報を取得
+      tags:
+        - レシピ関連
+  /recipe/recommend:
+    get:
+      consumes:
+        - application/json
+      description: メイン画面で表示するおすすめレシピの取得を行う。
+      parameters:
+        - description: ユーザーIdと冷蔵庫Id
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              userId:
+                  example: string
+                  type: string
+              fridgeId:
+                  example: string
+                  type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                foodId:
+                  example: string
+                  type: string
+                foodName:
+                  example: string
+                  type: string
+                foodCategoryId:
+                  example: string
+                  type: string  
+                foodCategory:
+                  example: string
+                  type: string
+                creationDate:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: おすすめレシピ情報を取得
+      tags:
+        - レシピ関連
+  /user/search:
+    get:
+      consumes:
+        - application/json
+      description: 冷蔵庫にメンバーを招待する際にユーザーをメールアドレスで検索するため
+      parameters:
+        - description: メールアドレス
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              email:
+                  example: string
+                  type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+              properties:
+                userId:
+                  example: string
+                  type: string
+                userName:
+                  example: string
+                  type: string
+              type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: ユーザー情報を取得
+      tags:
+        - 汎用
+  /food/set/{foodSetId}:
+    delete:
+      consumes:
+        - application/json
+      description: ユーザーが登録した食材セットを削除する。
+      parameters:
+        - in: path
+          description: 食材セットID
+          name: foodSetId
+          required: true
+          type: integer
+          format: int64
+        - description: ユーザー情報と食材セットId
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              foodSetId:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材セットを削除
+      tags:
+        - 食材セット関連
+    put:
+      consumes:
+        - application/json
+      description: ユーザーが登録した食材セットを更新する。
+      parameters:
+        - in: path
+          description: 食材セットID
+          name: foodSetId
+          required: true
+          type: integer
+          format: int64
+        - description: ユーザー情報と食材セットId
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              foodSetId:
+                example: string
+                type: string
+              foodSets:
+                items:
+                  properties:
+                    amount:
+                      example: 1
+                      type: number
+                    foodId:
+                      example: string
+                      type: string
+                  type: object
+                type: array
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材セットを更新
+      tags:
+        - 食材セット関連
+  /food/set:
+    get:
+      consumes:
+        - application/json
+      description: ユーザーが登録した食材セットを取得する。
+      parameters:
+        - description: ログイン中のユーザー情報
+          in: body
+          name: user_info
+          required: true
+          schema:
+            properties:
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                foodSet:
+                  items:
+                    properties:
+                      amount:
+                        example: 1
+                        type: number
+                      foodId:
+                        example: string
+                        type: string
+                      foodName:
+                        example: string
+                        type: string
+                      unit:
+                        example: string
+                        type: string
+                    type: object
+                  type: array
+                foodSetId:
+                  example: string
+                  type: string
+                foodSetName:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材セットを取得
+      tags:
+        - 食材セット関連
+    post:
+      consumes:
+        - application/json
+      description: 食材セットを登録する。
+      parameters:
+        - description: ユーザー情報と食材セット情報
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              foodSet:
+                items:
+                  properties:
+                    amount:
+                      example: 1
+                      type: number
+                    foodId:
+                      example: string
+                      type: string
+                  type: object
+                type: array
+              foodSetName:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 食材セットを登録
+      tags:
+        - 食材セット関連
+  /login:
+    post:
+      consumes:
+        - application/json
+      description: ユーザー名とパスワードでログイン処理を実行。
+      parameters:
+        - description: ユーザー情報
+          in: body
+          name: user_info
+          required: true
+          schema:
+            properties:
+              password:
+                example: string
+                type: string
+              userName:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            properties:
+              sessionId:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+              userName:
+                example: string
+                type: string
+            type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+        '405':
+          description: 入力値が間違っています
+      summary: ログイン
+      tags:
+        - ユーザー認証関連
+  /notice:
+    get:
+      consumes:
+        - application/json
+      description: お知らせを取得する。
+      parameters:
+        - description: ログイン中のユーザー情報,冷蔵庫ID,<br>取得したいお知らせ種別(0:全て、1:食材管理、2:重要、3:その他),<br>取得したい期間、取得したいお知らせ数
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              fridgeId:
+                example: string
+                type: string
+              noteiceNumber:
+                example: 10
+                type: number
+              endDate:
+                example: yyyy/MM/dd
+                type: string
+              startDate:
+                example: yyyy/MM/dd
+                type: string
+              noticeType:
+                example: 0
+                type: number
+              userId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            properties:
+              all:
+                items:
+                  properties:
+                    isRead:
+                      example: false
+                      type: boolean
+                    noticeId:
+                      example: string
+                      type: string
+                    noticeLink:
+                      example: string
+                      type: string
+                    noticeTitle:
+                      example: string
+                      type: string
+                    noticeType:
+                      example: 1
+                      type: number
+                    publicationDateTime:
+                      example: yyyy/MM/dd HH:mm:ss
+                      type: string
+                  type: object
+                type: array
+              food:
+                items:
+                  type: object
+                type: array
+              important:
+                items:
+                  type: object
+                type: array
+              other:
+                items:
+                  type: object
+                type: array
+            type: object
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: お知らせを取得
+      tags:
+        - お知らせ関連
+  /notice/{noticeId}:
+    put:
+      consumes:
+        - application/json
+      description: お知らせを既読に更新する。
+      parameters:
+      - name: noticeId
+        in: path
+        description: お知らせId
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        description: ログイン中のユーザーId/冷蔵庫Id/お知らせId
+        name: notice_info
+        required: true
+        schema:
+          properties:
+            fridgeId:
+              example: string
+              type: string
+            userId:
+              example: string
+              type: string
+          type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: お知らせを既読に更新
+      tags:
+        - お知らせ関連
+  /menu:
+    get:
+      consumes:
+        - application/json
+      description: 献立表を取得する
+      parameters:
+        - description: 冷蔵庫Id,取得したい献立の期間
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              fridgeId:
+                example: string
+                type: string
+              startDate:
+                example: string
+                type: string
+              endDate:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                menuId:
+                  example: string
+                  type: string
+                recipeId:
+                  example: string
+                  type: string
+                recipeName:
+                  example: string
+                  type: string
+                menuDate:
+                  example: string
+                  type: string
+                mealTime:
+                  example: string
+                  type: string
+                status: 
+                  example: string
+                  type: string
+                userId:
+                  example: string
+                  type: string
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 献立を取得
+      tags:
+        - 献立表関連
+    post:
+      consumes:
+        - application/json
+      description: 献立を登録する
+      parameters:
+        - description: 冷蔵庫Id,ユーザーId,レシピId,レシピ名,食事時間
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              fridgeId:
+                example: string
+                type: string
+              userId:
+                example: string
+                type: string
+              recipeId:
+                example: string
+                type: string
+              recipeName:
+                example: string
+                type: string
+              mealTime:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 献立を登録
+      tags:
+        - 献立表関連
+  /menu/{menuId}:
+    delete:
+      consumes:
+        - application/json
+      description: 献立を削除する。
+      parameters:
+        - name: menuId
+          in: path
+          description: 献立Id
+          required: true
+          type: integer
+          format: int64
+        - description: 冷蔵庫Id
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              fridgeId:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 献立を削除
+      tags:
+        - 献立表関連
+  /recipe/favorite:
+    get:
+      consumes:
+        - application/json
+      description: お気に入りレシピを条件に合わせて取得する。
+      parameters:
+      - name: info
+        in: body
+        description: ユーザーID,検索対象,フリーワード,レシピカテゴリ,調理時間
+        required: true
+        schema:
+          properties:
+            userId:
+              example: string
+              type: string
+            object:
+              example: string
+              type: string
+            text:
+              example: string
+              type: string
+            recipeCategory:
+              example: string
+              type: string
+            cookingTime:
+              example: string
+              type: string
+          type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                recipeId:
+                  example: string
+                  type: string
+                recipeName:
+                  example: string
+                  type: string
+                cookingTime:
+                  example: string
+                  type: string
+                recipeCategory:
+                  example: string
+                  type: string
+                favorite:
+                  example: 0
+                  type: number
+                ingredients:
+                  items:
+                    properties:
+                      foodId:
+                        example: string
+                        type: string
+                      name:
+                        example: string
+                        type: string
+                      amount: 
+                        example: string
+                        type: string
+                      unit: 
+                        example: string
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: お気に入りレシピ情報を取得
+      tags:
+        - レシピ関連
+  /recipe/favorite/{recipeId}:
+    put:
+      consumes:
+      - application/json
+      description: お気に入りステータスを更新する。
+      parameters:
+      - name: recipeId
+        in: path
+        description: レシピId
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        description: ユーザーId,レシピId
+        name: info
+        required: true
+        schema:
+          properties:
+            userId:
+              example: string
+              type: string
+            recipeId:
+              example: string
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: 成功時
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: お気に入りステータスを更新
+      tags:
+        - レシピ関連
+  /recipe/history:
+    get:
+      consumes:
+        - application/json
+      description: 過去に作った料理のレシピ履歴を取得する。
+      parameters:
+        - description: ユーザーId,検索対象,フリーワード,レシピカテゴリ,調理時間
+          in: body
+          name: info
+          required: true
+          schema:
+            properties:
+              userId:
+                example: string
+                type: string
+              object:
+                example: string
+                type: string
+              text:
+                example: string
+                type: string
+              recipeCategory:
+                example: string
+                type: string
+              cookingTime:
+                example: string
+                type: string
+            type: object
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 成功時
+          schema:
+            items:
+              properties:
+                recipeId:
+                  example: string
+                  type: string
+                recipeName:
+                  example: string
+                  type: string
+                cookingTime:
+                  example: string
+                  type: string
+                recipeCategory:
+                  example: string
+                  type: string
+                favorite:
+                  example: 0
+                  type: number
+                ingredients:
+                  items:
+                    properties:
+                      foodId:
+                        example: string
+                        type: string
+                      name:
+                        example: string
+                        type: string
+                      amount: 
+                        example: string
+                        type: string
+                      unit: 
+                        example: string
+                        type: string
+                    type: object
+                  type: array
+              type: object
+            type: array
+        '400':
+          description: 不正な値
+        '404':
+          description: ページが見つかりません
+      summary: 作成したレシピ履歴を取得
+      tags:
+        - レシピ関連
+  /fridge/{fridgeId}:
+    get:
+      tags:
+      - 冷蔵庫関連
+      summary: 所持食材の取得
+      description: 所持食材の取得を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: filter
+        description: フィルター条件
+        required: false
+        schema:
+          $ref: '#/definitions/filter'
+      responses:
+        "200":
+          description: 成功時
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/inline_response_200'
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    post:
+      tags:
+      - 冷蔵庫関連
+      summary: 所持食材の登録
+      description: 所持食材の登録を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: foodsInfo
+        description: 登録する食材の情報リスト
+        required: true
+        schema:
+          type: array
+          items:
+            $ref: '#/definitions/foodInfo'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    put:
+      tags:
+      - 冷蔵庫関連
+      summary: 所持食材の更新
+      description: 所持食材の更新を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: foodInfo
+        description: 更新する食材の情報
+        required: true
+        schema:
+          $ref: '#/definitions/foodInfo'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    delete:
+      tags:
+      - 冷蔵庫関連
+      summary: 所持食材の削除
+      description: 所持食材の削除を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: foodId
+        description: 削除する食材のID
+        required: true
+        schema:
+          $ref: '#/definitions/foodId'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+  /fridge/cook/{fridgeId}:
+    get:
+      tags:
+      - 冷蔵庫関連
+      summary: 料理作成前情報の取得
+      description: 料理作成前情報の取得を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: menuId
+        description: 献立ID
+        required: true
+        schema:
+          type: array
+          items:
+            type: integer
+            example: 2
+      responses:
+        "200":
+          description: 成功時
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/inline_response_200_1'
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    put:
+      tags:
+      - 冷蔵庫関連
+      summary: 料理の作成
+      description: 料理の作成をする。使用した食材を引き、献立ステータスを作成済みにする。作成料理を履歴に登録する。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: menuId
+        description: 献立ID、レシピID
+        required: true
+        schema:
+          $ref: '#/definitions/menuId'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+  /fridge/info/{fridgeId}:
+    post:
+      tags:
+      - 冷蔵庫関連
+      summary: 冷蔵庫の作成
+      description: 冷蔵庫の作成を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: registerInfo
+        description: 登録情報
+        required: true
+        schema:
+          $ref: '#/definitions/registerInfo'
+      responses:
+        "200":
+          description: 成功時
+          schema:
+            $ref: '#/definitions/inline_response_200_2'
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    put:
+      tags:
+      - 冷蔵庫関連
+      summary: 冷蔵庫情報の更新
+      description: 冷蔵庫情報の更新を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: fridgeId
+        in: path
+        description: 冷蔵庫のID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: updateInfo
+        description: 更新情報
+        required: true
+        schema:
+          $ref: '#/definitions/updateInfo'
+      responses:
+        "200":
+          description: 成功時
+          schema:
+            $ref: '#/definitions/inline_response_200_2'
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+  /my_recipe:
+    get:
+      tags:
+      - マイレシピ関連
+      summary: マイレシピの取得
+      description: マイレシピの取得を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: filter
+        description: フィルター条件
+        required: false
+        schema:
+          $ref: '#/definitions/filter_1'
+      responses:
+        "200":
+          description: 成功時
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/inline_response_200_3'
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+    post:
+      tags:
+      - マイレシピ関連
+      summary: マイレシピの登録
+      description: マイレシピの登録を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: registerInfo
+        description: 登録情報
+        required: true
+        schema:
+          $ref: '#/definitions/registerInfo_1'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+  /my_recipe/{myRecipeId}:
+    put:
+      tags:
+      - マイレシピ関連
+      summary: マイレシピの更新
+      description: マイレシピの更新を行います。
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: myRecipeId
+        description: マイレシピID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: updateInfo
+        description: 更新情報
+        required: true
+        schema:
+          $ref: '#/definitions/updateInfo_1'
+      responses:
+        "200":
+          description: 成功時
+        "400":
+          description: 不正な値
+        "404":
+          description: ページが見つかりません
+        "405":
+          description: 入力値が間違っています
+definitions:
+  updateInfo:
+    type: object
+    properties:
+      userId:
+        type: integer
+        example: 2
+      fridgeName:
+        type: string
+        example: 佐藤家の冷蔵庫
+      fridgeOwnerId:
+        type: integer
+        example: 12
+      status:
+        type: integer
+        example: 3
+      memberIds:
+        type: array
+        items:
+          type: integer
+          example: 16
+  registerInfo:
+    type: object
+    properties:
+      userId:
+        type: integer
+        example: 2
+      fridgeName:
+        type: string
+        example: 佐藤家の冷蔵庫
+      fridgeOwnerId:
+        type: integer
+        example: 12
+      status:
+        type: integer
+        example: 3
+      memberIds:
+        type: array
+        items:
+          type: integer
+          example: 16
+  updateInfo_1:
+    type: object
+    properties:
+      userId:
+        type: integer
+        example: 1
+      image:
+        type: string
+        example: .png
+      categoryId:
+        type: integer
+        example: 3
+      cookTime:
+        type: string
+        example: 45分
+      cookMethod:
+        type: string
+        example: 長文長文長文
+      foodList:
+        type: array
+        items:
+          $ref: '#/definitions/recipe_foodList'
+      deleteFlg:
+        type: boolean
+        example: true
+  foodId:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 1
+  cookfridgeId_leftOverFoods:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 10
+      foodName:
+        type: string
+        example: カレーのルー
+      haveQuantity:
+        type: integer
+        example: 1
+      unit:
+        type: string
+        example: 個
+  filter_1:
+    type: object
+    properties:
+      userId:
+        type: integer
+        example: 21
+      target:
+        type: string
+        example: 食材名
+      searchWord:
+        type: string
+        example: 肉
+      recipeCategoryId:
+        type: integer
+        example: 3
+      cookTimeId:
+        type: integer
+        example: 4
+  registerInfo_1:
+    type: object
+    properties:
+      userId:
+        type: integer
+        example: 1
+      image:
+        type: string
+        example: .png
+      categoryId:
+        type: integer
+        example: 3
+      cookTime:
+        type: string
+        example: 45分
+      cookMethod:
+        type: string
+        example: 長文長文長文
+      foodList:
+        type: array
+        items:
+          $ref: '#/definitions/recipe_foodList'
+  recipe_foodList:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 2
+      foodName:
+        type: string
+        example: 玉ねぎ
+      quantity:
+        type: integer
+        example: "0.5"
+      unit:
+        type: string
+        example: 個
+  cookfridgeId_useFoods:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 1
+      foodName:
+        type: string
+        example: カレーのルー
+      needQuantity:
+        type: integer
+        example: "2.5"
+      unit:
+        type: string
+        example: 個
+  filter:
+    type: object
+    properties:
+      foodName:
+        type: string
+        example: ニンジン
+      category:
+        type: array
+        items:
+          type: integer
+          example: 1
+      expirationDateFrom:
+        type: string
+        example: 2022/05/01
+      expirationDateTo:
+        type: string
+        example: 2022/05/31
+  foodInfo:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 1
+      foodName:
+        type: string
+        example: じゃがいも
+      foodCategoryId:
+        type: integer
+        example: 2
+      quantity:
+        type: integer
+        example: "2.5"
+      unit:
+        type: string
+        example: 個
+      expirationDate:
+        type: string
+        example: 2023/12/31
+  inline_response_200_1:
+    type: object
+    properties:
+      cookName:
+        type: string
+        example: カレーライス
+      useFoods:
+        type: array
+        items:
+          $ref: '#/definitions/cookfridgeId_useFoods'
+      leftOverFoods:
+        type: array
+        items:
+          $ref: '#/definitions/cookfridgeId_leftOverFoods'
+  inline_response_200:
+    type: object
+    properties:
+      foodId:
+        type: integer
+        example: 1
+      foodName:
+        type: string
+        example: ニンジン
+      foodCategoryId:
+        type: integer
+        example: 2
+      quantity:
+        type: integer
+        example: "0.5"
+      unit:
+        type: string
+        example: 本
+      expirationDate:
+        type: string
+        example: 2022/05/31
+  menuId:
+    type: object
+    properties:
+      menuIds:
+        type: array
+        items:
+          type: integer
+          example: 4
+      recipeIds:
+        type: array
+        items:
+          type: integer
+          example: 6
+  inline_response_200_2:
+    type: object
+    properties:
+      fridgeId:
+        type: integer
+        example: 7
+      fridgeName:
+        type: string
+        example: 佐藤家の冷蔵庫
+  inline_response_200_3:
+    type: object
+    properties:
+      recipeId:
+        type: integer
+        example: 6
+      recipeName:
+        type: string
+        example: 佐藤家のハヤシライス
+      cookTime:
+        type: string
+        example: 15分
+      categoryId:
+        type: integer
+        example: 1
+      foodList:
+        type: array
+        items:
+          $ref: '#/definitions/recipe_foodList'
+      bookmarkStatus:
+        type: integer
+        example: 1
+schemes:
+  - https
