@@ -1,18 +1,23 @@
 package main
 
 import (
-	"net/http"
+	"myfridge-backend/db"
+	"myfridge-backend/routes"
+	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-var e = createMux()
+var server = createMux()
 
 func main() {
-	e.GET("/", articleIndex)
+	db.Init()
 
-	e.Logger.Fatal(e.Start(":5050"))
+	routes.RegisterRoutes(server)
+
+	port := os.Getenv("API_PORT")
+	server.Logger.Fatal(server.Start(port))
 }
 
 func createMux() *echo.Echo {
@@ -23,8 +28,4 @@ func createMux() *echo.Echo {
 	e.Use(middleware.Gzip())
 
 	return e
-}
-
-func articleIndex(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello")
 }
